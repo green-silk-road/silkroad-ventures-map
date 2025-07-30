@@ -1,14 +1,74 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { supabase } from '@/integrations/supabase/client';
 
-interface MapComponentProps {
-  onLocationClick?: (location: { lng: number; lat: number; name?: string }) => void;
+interface Location {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  description?: string;
+  type?: string;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
+interface MapComponentProps {
+  onLocationClick?: (location: { lng: number; lat: number; name?: string; id?: string }) => void;
+  refreshTrigger?: number;
+}
+
+const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick, refreshTrigger }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
+
+  const loadLocations = async () => {
+    try {
+      const { data: locations, error } = await supabase
+        .from('locations')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching locations:', error);
+        return;
+      }
+
+      // Clear existing markers
+      markers.current.forEach(marker => marker.remove());
+      markers.current = [];
+
+      // Add markers for each location
+      locations?.forEach((location: Location) => {
+        const marker = new mapboxgl.Marker({
+          color: location.type === 'uploaded' ? 'hsl(220, 70%, 50%)' : 'hsl(147, 47%, 25%)',
+          scale: 0.8
+        })
+          .setLngLat([location.longitude, location.latitude])
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 })
+              .setHTML(`
+                <h3 style="color: hsl(40, 15%, 15%); margin: 0; font-weight: bold;">${location.name}</h3>
+                ${location.description ? `<p style="color: hsl(40, 10%, 45%); margin: 4px 0; font-size: 14px;">${location.description}</p>` : ''}
+                <p style="color: hsl(40, 10%, 45%); margin: 4px 0 0 0; font-size: 14px;">Click to explore this location</p>
+              `)
+          )
+          .addTo(map.current!);
+
+        marker.getElement().addEventListener('click', () => {
+          onLocationClick?.({
+            lng: location.longitude,
+            lat: location.latitude,
+            name: location.name,
+            id: location.id
+          });
+        });
+
+        markers.current.push(marker);
+      });
+    } catch (error) {
+      console.error('Error loading locations:', error);
+    }
+  };
 
   const initializeMap = () => {
     if (!mapContainer.current) return;
@@ -49,42 +109,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
         'top-right'
       );
 
-      // Add atmosphere and styling
+      // Load locations when map is ready
       map.current.on('style.load', () => {
-        if (!map.current) return;
-        
-        map.current.setFog({
-          color: 'rgb(220, 190, 170)',
-          'high-color': 'rgb(180, 150, 130)',
-          'horizon-blend': 0.1,
-        });
-
-        // Add sample markers for Silk Road locations
-        const silkRoadLocations = [
-          { name: "Istanbul", lng: 28.9784, lat: 41.0082 },
-          { name: "Tehran", lng: 51.3890, lat: 35.6892 },
-          { name: "Samarkand", lng: 66.9597, lat: 39.6270 },
-          { name: "Kashgar", lng: 75.9877, lat: 39.4704 },
-          { name: "Xi'an", lng: 108.9401, lat: 34.3416 },
-        ];
-
-        silkRoadLocations.forEach(location => {
-          const marker = new mapboxgl.Marker({
-            color: 'hsl(147, 47%, 25%)', // Primary green
-            scale: 0.8
-          })
-            .setLngLat([location.lng, location.lat])
-            .setPopup(
-              new mapboxgl.Popup({ offset: 25 })
-                .setHTML(`<h3 style="color: hsl(40, 15%, 15%); margin: 0; font-weight: bold;">${location.name}</h3>
-                          <p style="color: hsl(40, 10%, 45%); margin: 4px 0 0 0; font-size: 14px;">Click to explore this location</p>`)
-            )
-            .addTo(map.current!);
-
-          marker.getElement().addEventListener('click', () => {
-            onLocationClick?.(location);
-          });
-        });
+        loadLocations();
       });
 
       // Handle map clicks for adding new locations
@@ -104,9 +131,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
     initializeMap();
 
     return () => {
+      markers.current.forEach(marker => marker.remove());
       map.current?.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if (refreshTrigger && map.current) {
+      loadLocations();
+    }
+  }, [refreshTrigger]);
 
   return (
     <div className="relative w-full h-[600px]">
