@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { MapPin, Plus } from "lucide-react";
 
 interface MapComponentProps {
   onLocationClick?: (location: { lng: number; lat: number; name?: string }) => void;
@@ -12,19 +9,33 @@ interface MapComponentProps {
 const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [isTokenValid, setIsTokenValid] = useState(false);
 
-  const initializeMap = (token: string) => {
-    if (!mapContainer.current || !token) return;
+  const initializeMap = () => {
+    if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = token;
-      
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        projection: 'globe' as any,
+        style: {
+          version: 8,
+          sources: {
+            'raster-tiles': {
+              type: 'raster',
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '© OpenStreetMap contributors'
+            }
+          },
+          layers: [
+            {
+              id: 'simple-tiles',
+              type: 'raster',
+              source: 'raster-tiles',
+              minzoom: 0,
+              maxzoom: 22
+            }
+          ]
+        },
         zoom: 2,
         center: [65, 35], // Center on Central Asia (Silk Road region)
         pitch: 0,
@@ -84,59 +95,18 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
         });
       });
 
-      setIsTokenValid(true);
     } catch (error) {
       console.error('Error initializing map:', error);
-      setIsTokenValid(false);
-    }
-  };
-
-  const handleTokenSubmit = () => {
-    if (mapboxToken) {
-      localStorage.setItem('mapbox_token', mapboxToken);
-      initializeMap(mapboxToken);
     }
   };
 
   useEffect(() => {
-    // Check for stored token
-    const storedToken = localStorage.getItem('mapbox_token');
-    if (storedToken) {
-      setMapboxToken(storedToken);
-      initializeMap(storedToken);
-    }
+    initializeMap();
 
     return () => {
       map.current?.remove();
     };
   }, []);
-
-  if (!isTokenValid) {
-    return (
-      <div className="w-full h-[600px] bg-muted rounded-lg flex items-center justify-center">
-        <div className="text-center p-8 max-w-md">
-          <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
-          <h3 className="text-xl font-semibold mb-4">Mapbox Token Required</h3>
-          <p className="text-muted-foreground mb-6">
-            Enter your Mapbox public token to display the interactive map. 
-            Get your token from <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
-          </p>
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="pk.eyJ1IjoieW91cnVzZXJuYW1lIi..."
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={handleTokenSubmit} disabled={!mapboxToken}>
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative w-full h-[600px]">
