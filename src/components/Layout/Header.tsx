@@ -1,9 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { MapPin, Compass, ShoppingBag, GraduationCap, PenTool, LogIn, UserPlus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set up auth state listener FIRST  
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <header className="border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -62,19 +91,44 @@ const Header = () => {
                   Blog
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
+              {/* Conditional Contribute Link */}
+              {user && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink 
+                    className="px-4 py-2 text-sm font-medium hover:text-primary cursor-pointer"
+                    onClick={() => navigate('/contribute')}
+                  >
+                    Contribute
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
-            </Button>
-            <Button size="sm">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Join TGSR
-            </Button>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {user.email}
+                </span>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+                <Button size="sm" onClick={() => navigate('/auth')}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Join TGSR
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

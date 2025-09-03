@@ -1,20 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '@/components/Layout/Header';
 import HeroSection from '@/components/Home/HeroSection';
 import MapComponent from '@/components/Map/MapComponent';
-import LocationUpload from '@/components/Map/LocationUpload';
 
 const Index = () => {
-  const [mapRefreshTrigger, setMapRefreshTrigger] = useState(0);
-
   const handleLocationClick = (location: { lng: number; lat: number; name?: string; id?: string }) => {
     console.log('Location clicked:', location);
     // TODO: Navigate to location detail page or show popup
-  };
-
-  const handleUploadSuccess = () => {
-    // Trigger map refresh to show new locations
-    setMapRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -33,14 +25,10 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
-            <div className="lg:flex-shrink-0">
-              <LocationUpload onUploadSuccess={handleUploadSuccess} />
-            </div>
-            <div className="flex-1">
+          <div className="flex justify-center">
+            <div className="w-full max-w-6xl">
               <MapComponent 
                 onLocationClick={handleLocationClick} 
-                refreshTrigger={mapRefreshTrigger}
               />
             </div>
           </div>

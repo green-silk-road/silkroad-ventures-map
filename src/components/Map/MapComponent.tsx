@@ -14,10 +14,9 @@ interface Location {
 
 interface MapComponentProps {
   onLocationClick?: (location: { lng: number; lat: number; name?: string; id?: string }) => void;
-  refreshTrigger?: number;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick, refreshTrigger }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -135,12 +134,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick, refreshTri
       map.current?.remove();
     };
   }, []);
-
-  useEffect(() => {
-    if (refreshTrigger && map.current) {
-      loadLocations();
-    }
-  }, [refreshTrigger]);
 
   return (
     <div className="relative w-full h-[600px]">
