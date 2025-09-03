@@ -83,10 +83,23 @@ const LocationUpload: React.FC<LocationUploadProps> = ({ onUploadSuccess }) => {
         throw new Error('No valid locations found in CSV');
       }
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('You must be logged in to upload locations');
+      }
+
+      // Add user_id to locations
+      const locationData = locations.map(location => ({
+        ...location,
+        user_id: user.id
+      }));
+
       // Insert locations into database
       const { error } = await supabase
         .from('locations')
-        .insert(locations);
+        .insert(locationData);
 
       if (error) throw error;
 
