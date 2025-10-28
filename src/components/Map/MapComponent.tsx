@@ -5,17 +5,12 @@ import 'leaflet/dist/leaflet.css';
 import { supabase } from '@/integrations/supabase/client';
 
 // Fix default marker icon issue with Leaflet
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
-
-L.Marker.prototype.options.icon = DefaultIcon;
 
 interface Location {
   id: string;
@@ -75,7 +70,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
         <circle cx="12.5" cy="12.5" r="7" fill="white"/>
       </svg>
     `;
-    return L.divIcon({
+    return new L.DivIcon({
       html: svgIcon,
       className: 'custom-marker',
       iconSize: [25, 41],
