@@ -1,16 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '@/integrations/supabase/client';
-
-// Fix default marker icon issue with Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-});
 
 interface Location {
   id: string;
@@ -25,40 +16,86 @@ interface MapComponentProps {
   onLocationClick?: (location: { lng: number; lat: number; name?: string; id?: string }) => void;
 }
 
-// Custom component to handle map clicks
-function MapClickHandler({ onLocationClick }: { onLocationClick?: (location: { lng: number; lat: number }) => void }) {
-  useMapEvents({
-    click: (e) => {
-      onLocationClick?.({
-        lng: e.latlng.lng,
-        lat: e.latlng.lat
-      });
-    },
-  });
-  return null;
-}
-
 const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
+    initializeMap();
     loadLocations();
+
+    return () => {
+      // Cleanup markers and map
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+      mapRef.current?.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const initializeMap = () => {
+    if (!mapContainer.current) return;
+
+    // Create the Leaflet map
+    mapRef.current = L.map(mapContainer.current, {
+      zoomControl: true,
+      attributionControl: true,
+    }).setView([35, 65], 2); // [lat, lng]
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 22,
+    }).addTo(mapRef.current);
+
+    // Handle map clicks
+    mapRef.current.on('click', (e: L.LeafletMouseEvent) => {
+      onLocationClick?.({ lng: e.latlng.lng, lat: e.latlng.lat });
+    });
+  };
 
   const loadLocations = async () => {
     try {
-      const { data: locations, error } = await supabase
-        .from('locations')
-        .select('*');
-
+      const { data, error } = await supabase.from('locations').select('*');
       if (error) {
         console.error('Error fetching locations:', error);
         return;
       }
+      setLocations(data || []);
 
-      setLocations(locations || []);
-    } catch (error) {
-      console.error('Error loading locations:', error);
+      // Clear existing markers
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+
+      // Add markers
+      (data || []).forEach((location: Location) => {
+        const marker = L.marker([location.latitude, location.longitude], {
+          icon: createCustomIcon(location.type),
+        })
+          .addTo(mapRef.current!)
+          .bindPopup(`
+            <div style="font-size: 14px;">
+              <h3 style="margin: 0; font-weight: 700;">${location.name}</h3>
+              ${location.description ? `<p style="margin: 4px 0; color: #6b7280;">${location.description}</p>` : ''}
+              <p style="margin: 4px 0 0 0; color: #6b7280;">Click to explore this location</p>
+            </div>
+          `);
+
+        marker.on('click', () => {
+          onLocationClick?.({
+            lng: location.longitude,
+            lat: location.latitude,
+            name: location.name,
+            id: location.id,
+          });
+        });
+
+        markersRef.current.push(marker);
+      });
+    } catch (err) {
+      console.error('Error loading locations:', err);
     }
   };
 
@@ -70,7 +107,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
         <circle cx="12.5" cy="12.5" r="7" fill="white"/>
       </svg>
     `;
-    return new L.DivIcon({
+    return L.divIcon({
       html: svgIcon,
       className: 'custom-marker',
       iconSize: [25, 41],
@@ -81,45 +118,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
 
   return (
     <div className="relative w-full h-[600px]">
-      <MapContainer
-        center={[35, 65]}
-        zoom={2}
-        className="absolute inset-0 rounded-lg shadow-lg"
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <MapClickHandler onLocationClick={onLocationClick} />
-        {locations.map((location) => (
-          <Marker
-            key={location.id}
-            position={[location.latitude, location.longitude]}
-            icon={createCustomIcon(location.type)}
-            eventHandlers={{
-              click: () => {
-                onLocationClick?.({
-                  lng: location.longitude,
-                  lat: location.latitude,
-                  name: location.name,
-                  id: location.id
-                });
-              },
-            }}
-          >
-            <Popup>
-              <div className="text-sm">
-                <h3 className="font-bold mb-1">{location.name}</h3>
-                {location.description && (
-                  <p className="text-muted-foreground mb-1">{location.description}</p>
-                )}
-                <p className="text-xs text-muted-foreground">Click to explore this location</p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div ref={mapContainer} className="absolute inset-0 rounded-lg shadow-lg" />
       <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg p-3 shadow-md z-[1000]">
         <h3 className="font-semibold text-sm text-card-foreground">The Green Silk Road</h3>
         <p className="text-xs text-muted-foreground">Click locations to explore</p>
