@@ -3,8 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { User, Session } from '@supabase/supabase-js';
 import Header from '@/components/Layout/Header';
-import LocationUpload from '@/components/Map/LocationUpload';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import ProjectEntryForm from '@/components/Map/ProjectEntryForm';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Contribute = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -42,9 +42,9 @@ const Contribute = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleUploadSuccess = () => {
+  const handleSubmitSuccess = () => {
     // Could add additional success handling here if needed
-    console.log('Location upload successful');
+    console.log('Project added successfully');
   };
 
   if (loading) {
@@ -71,8 +71,7 @@ const Contribute = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Contribute to the Network</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Help expand the Green Silk Road network by adding new locations, projects, and opportunities. 
-              Upload your data using a CSV file with the required format.
+              Help expand the Green Silk Road network by adding new sustainable projects, locations, and opportunities.
             </p>
           </div>
           
@@ -81,12 +80,12 @@ const Contribute = () => {
               <CardHeader>
                 <CardTitle>Welcome, {user.email}</CardTitle>
                 <CardDescription>
-                  You're signed in and ready to contribute to the network. Upload locations below.
+                  You're signed in and ready to contribute to the network. Add your project below.
                 </CardDescription>
               </CardHeader>
             </Card>
             
-            <LocationUpload onUploadSuccess={handleUploadSuccess} />
+            <ProjectEntryForm onSubmitSuccess={handleSubmitSuccess} />
           </div>
         </div>
       </section>
