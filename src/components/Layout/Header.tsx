@@ -88,12 +88,6 @@ const Header = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink className="px-4 py-2 text-sm font-medium hover:text-primary cursor-pointer">
-                  Blog
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
               {user && (
                 <NavigationMenuItem>
                   <NavigationMenuLink 
@@ -172,10 +166,6 @@ const Header = () => {
 
                   <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)}>
                     Projects
-                  </Button>
-
-                  <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)}>
-                    Blog
                   </Button>
 
                   {user && (
