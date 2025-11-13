@@ -42,7 +42,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
     mapRef.current = L.map(mapContainer.current, {
       zoomControl: true,
       attributionControl: true,
-    }).setView([35, 65], 2); // [lat, lng]
+      touchZoom: true,
+      dragging: true,
+    }).setView([35, 65], window.innerWidth < 768 ? 1.5 : 2);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -117,11 +119,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
   };
 
   return (
-    <div className="relative w-full h-[600px]">
+    <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px]">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg shadow-lg" />
-      <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg p-3 shadow-md z-[1000]">
-        <h3 className="font-semibold text-sm text-card-foreground">The Green Silk Road</h3>
-        <p className="text-xs text-muted-foreground">Click locations to explore</p>
+      <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 md:p-3 shadow-md z-[1000]">
+        <h3 className="font-semibold text-xs md:text-sm text-card-foreground">The Green Silk Road</h3>
+        <p className="text-[10px] md:text-xs text-muted-foreground">Tap locations to explore</p>
       </div>
     </div>
   );
