@@ -56,6 +56,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationClick }) => {
     mapRef.current.on('click', (e: L.LeafletMouseEvent) => {
       onLocationClick?.({ lng: e.latlng.lng, lat: e.latlng.lat });
     });
+
+    // Force map to recalculate size after initialization
+    setTimeout(() => {
+      mapRef.current?.invalidateSize();
+    }, 100);
   };
 
   const loadLocations = async () => {
