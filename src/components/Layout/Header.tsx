@@ -62,7 +62,7 @@ const Header = () => {
                         <Compass className="w-5 h-5 text-primary" />
                         <div>
                           <h4 className="font-medium">Travel</h4>
-                          <p className="text-sm text-muted-foreground">Discover sustainable journeys and overland routes</p>
+                          <p className="text-sm text-muted-foreground">Explore the World with The Green Silk Road</p>
                         </div>
                       </a>
                     </NavigationMenuLink>
@@ -71,7 +71,7 @@ const Header = () => {
                         <ShoppingBag className="w-5 h-5 text-primary" />
                         <div>
                           <h4 className="font-medium">Trade</h4>
-                          <p className="text-sm text-muted-foreground">Buy and sell sustainable goods</p>
+                          <p className="text-sm text-muted-foreground">Value Chain Communities</p>
                         </div>
                       </a>
                     </NavigationMenuLink>
@@ -80,7 +80,7 @@ const Header = () => {
                         <GraduationCap className="w-5 h-5 text-primary" />
                         <div>
                           <h4 className="font-medium">Training</h4>
-                          <p className="text-sm text-muted-foreground">Learn sustainable living practices</p>
+                          <p className="text-sm text-muted-foreground">How to become a Regenerator?</p>
                         </div>
                       </a>
                     </NavigationMenuLink>
@@ -150,21 +150,21 @@ const Header = () => {
                         <Compass className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Travel</h4>
-                          <p className="text-xs text-muted-foreground">Sustainable journeys</p>
+                          <p className="text-xs text-muted-foreground">Explore the World</p>
                         </div>
                       </a>
                       <a href="https://thegreensilkroad.in/trade/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
                         <ShoppingBag className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Trade</h4>
-                          <p className="text-xs text-muted-foreground">Sustainable goods</p>
+                          <p className="text-xs text-muted-foreground">Value Chain Communities</p>
                         </div>
                       </a>
                       <a href="https://thegreensilkroad.in/training/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
                         <GraduationCap className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Training</h4>
-                          <p className="text-xs text-muted-foreground">Learn practices</p>
+                          <p className="text-xs text-muted-foreground">Become a Regenerator</p>
                         </div>
                       </a>
                     </div>
