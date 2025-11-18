@@ -57,26 +57,32 @@ const Header = () => {
                 <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] bg-popover z-50">
-                    <NavigationMenuLink className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
-                      <Compass className="w-5 h-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">Travel</h4>
-                        <p className="text-sm text-muted-foreground">Discover sustainable journeys and overland routes</p>
-                      </div>
+                    <NavigationMenuLink asChild>
+                      <a href="https://thegreensilkroad.in/travel/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
+                        <Compass className="w-5 h-5 text-primary" />
+                        <div>
+                          <h4 className="font-medium">Travel</h4>
+                          <p className="text-sm text-muted-foreground">Discover sustainable journeys and overland routes</p>
+                        </div>
+                      </a>
                     </NavigationMenuLink>
-                    <NavigationMenuLink className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
-                      <ShoppingBag className="w-5 h-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">Trade</h4>
-                        <p className="text-sm text-muted-foreground">Buy and sell sustainable goods</p>
-                      </div>
+                    <NavigationMenuLink asChild>
+                      <a href="https://thegreensilkroad.in/trade/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
+                        <ShoppingBag className="w-5 h-5 text-primary" />
+                        <div>
+                          <h4 className="font-medium">Trade</h4>
+                          <p className="text-sm text-muted-foreground">Buy and sell sustainable goods</p>
+                        </div>
+                      </a>
                     </NavigationMenuLink>
-                    <NavigationMenuLink className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
-                      <GraduationCap className="w-5 h-5 text-primary" />
-                      <div>
-                        <h4 className="font-medium">Training</h4>
-                        <p className="text-sm text-muted-foreground">Learn sustainable living practices</p>
-                      </div>
+                    <NavigationMenuLink asChild>
+                      <a href="https://thegreensilkroad.in/training/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent">
+                        <GraduationCap className="w-5 h-5 text-primary" />
+                        <div>
+                          <h4 className="font-medium">Training</h4>
+                          <p className="text-sm text-muted-foreground">Learn sustainable living practices</p>
+                        </div>
+                      </a>
                     </NavigationMenuLink>
                   </div>
                 </NavigationMenuContent>
@@ -140,27 +146,27 @@ const Header = () => {
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm text-muted-foreground uppercase">Explore</h3>
                     <div className="space-y-3 pl-2">
-                      <button className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
+                      <a href="https://thegreensilkroad.in/travel/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
                         <Compass className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Travel</h4>
                           <p className="text-xs text-muted-foreground">Sustainable journeys</p>
                         </div>
-                      </button>
-                      <button className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
+                      </a>
+                      <a href="https://thegreensilkroad.in/trade/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
                         <ShoppingBag className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Trade</h4>
                           <p className="text-xs text-muted-foreground">Sustainable goods</p>
                         </div>
-                      </button>
-                      <button className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
+                      </a>
+                      <a href="https://thegreensilkroad.in/training/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 w-full text-left p-2 rounded-md hover:bg-accent">
                         <GraduationCap className="w-4 h-4 text-primary" />
                         <div>
                           <h4 className="font-medium text-sm">Training</h4>
                           <p className="text-xs text-muted-foreground">Learn practices</p>
                         </div>
-                      </button>
+                      </a>
                     </div>
                   </div>
 
